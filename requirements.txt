@@ -1,0 +1,6 @@
+scikit-learn
+pandas
+seaborn
+jupyter
+shap
+pyworld3
