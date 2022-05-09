@@ -49,3 +49,5 @@ ui-tests/playwright-report
 # VSCode
 .vscode
 ~
+
+.ipynb_checkpoints
