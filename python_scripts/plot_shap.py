@@ -62,7 +62,7 @@ print(
 
 # %% [markdown]
 #
-# ## What SHAP values means?
+# ## What SHAP values mean?
 
 # %%
 import pandas as pd
@@ -108,7 +108,7 @@ shap_values[0].values.sum() + shap_values.base_values[0]
 
 # %% [markdown]
 #
-# ## SHAP as a debugging visualization tool
+# ## SHAP as a visual debugging tool
 #
 # SHAP package comes with handy plotting facilities to visualize the Shapley
 # values.

@@ -157,7 +157,7 @@ for scenario, color in zip(
 #
 # ### A predictive model can always be inspected
 #
-# Before to inspect a model, you should always check its statistical validity.
+# Before inspecting a model, you should always quantify its predictive power.
 
 # %%
 from sklearn.datasets import fetch_openml
