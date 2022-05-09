@@ -1,4 +1,4 @@
-# TRAIL
+# TRAIL seminar
 
 ## Running the tutorial locally
 
