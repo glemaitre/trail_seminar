@@ -261,12 +261,12 @@ shap.plots.waterfall(shap_values[0])
 #
 # ## Summary
 #
-# | Method name                               |  Model agnostic |   Model specific  |  Local explanation  |  Global explanation  | Decision function  |  Loss  |
-# |-------------------------------------------|:---------------:|:-----------------:|:-------------------:|:--------------------:|:------------------:|:------:|
-# | Linear model coefficients                 |        ❌        |        ✅         |         ❌          |         ✅           |         ✅          |   ❌   |
-# | Mean decrease in impurity (MDI)           |        ❌        |        ✅         |         ❌          |         ✅           |         ✅          |   ❌   |
-# | Individual conditional expectation (ICE)  |        ✅        |        ❌         |         ✅          |         ❌           |         ✅          |   ❌   |
-# | Partial dependence plot (PDP)             |        ✅        |        ❌         |         ❌          |         ✅           |         ✅          |   ❌   |
-# | Permutation importance                    |        ✅        |        ❌         |         ❌          |         ✅           |         ✅          |   ✅   |
-# | Shapley additive explanations (SHAP)      |        ✅        |        ❌         |         ✅          |         ✅           |         ✅          |   ✅!  |
-# | Shapley additive global importance (SAGE) |        ✅        |        ❌         |         ❌          |         ✅           |         ❌          |   ✅   |
+# | Method name                               |  Agnostic vs. Specific |  Local explanation  |  Global explanation  | Decision function  |  Loss  |
+# |-------------------------------------------|:----------------------:|:-------------------:|:--------------------:|:------------------:|:------:|
+# | Linear model coefficients                 |           ❌           |         ✅          |         ✅           |         ✅          |   ❌   |
+# | Mean decrease in impurity (MDI)           |           ❌           |         ❌          |         ✅           |         ✅          |   ❌   |
+# | Individual conditional expectation (ICE)  |           ✅           |         ✅          |         ❌           |         ✅          |   ❌   |
+# | Partial dependence plot (PDP)             |           ✅           |         ❌          |         ✅           |         ✅          |   ❌   |
+# | Permutation importance                    |           ✅           |         ❌          |         ✅           |         ❌          |   ✅   |
+# | Shapley additive explanations (SHAP)      |           ✅           |         ✅          |         ✅           |         ✅          |   ✅!  |
+# | Shapley additive global importance (SAGE) |           ✅           |         ❌          |         ✅           |         ❌          |   ✅   |
