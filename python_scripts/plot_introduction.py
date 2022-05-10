@@ -194,7 +194,7 @@ cv_results[["train_score", "test_score"]].aggregate(["mean", "std"])
 
 # %% [markdown]
 #
-# ## Taxonomy of the explainable techniques
+# ## Taxonomy of model explanation techniques
 #
 # ### Model specific vs. model agnostic
 #
@@ -258,3 +258,15 @@ shap.plots.waterfall(shap_values[0])
 # Some models will only explain the decision function of the model: at no
 # point in time, the true variable `y` will be used to produce the explanation.
 # Some other approaches will use the true `y` to compute the explanation.
+#
+# ## Summary
+#
+# | Method name                               |  Model agnostic |   Model specific  |  Local explanation  |  Global explanation  | Decision function  |  Loss  |
+# |-------------------------------------------|:---------------:|:-----------------:|:-------------------:|:--------------------:|:------------------:|:------:|
+# | Linear model coefficients                 |        ❌        |        ✅         |         ❌          |         ✅           |         ✅          |   ❌   |
+# | Mean decrease in impurity (MDI)           |        ❌        |        ✅         |         ❌          |         ✅           |         ✅          |   ❌   |
+# | Individual conditional expectation (ICE)  |        ✅        |        ❌         |         ✅          |         ❌           |         ✅          |   ❌   |
+# | Partial dependence plot (PDP)             |        ✅        |        ❌         |         ❌          |         ✅           |         ✅          |   ❌   |
+# | Permutation importance                    |        ✅        |        ❌         |         ❌          |         ✅           |         ✅          |   ✅   |
+# | Shapley additive explanations (SHAP)      |        ✅        |        ❌         |         ✅          |         ✅           |         ✅          |   ✅!  |
+# | Shapley additive global importance (SAGE) |        ✅        |        ❌         |         ❌          |         ✅           |         ❌          |   ✅   |
