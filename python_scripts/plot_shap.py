@@ -84,6 +84,9 @@ print(
 # %% [markdown]
 #
 # ## What SHAP values mean?
+#
+# ![shap_1](../images/shap_1.png)
+# ![shap_2](../images/shap_2.png)
 
 # %%
 import pandas as pd
