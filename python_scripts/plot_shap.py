@@ -6,6 +6,7 @@
 
 # %%
 import seaborn as sns
+
 sns.set_context("poster")
 
 # %%
@@ -56,8 +57,28 @@ print(
     f"{mean_absolute_error(y_train, model.predict(X_train)):.3f} $/hour"
 )
 print(
-    f"MAE on the training set: "
+    f"MAE on the testing set: "
     f"{mean_absolute_error(y_test, model.predict(X_test)):.3f} $/hour"
+)
+
+# %%
+import matplotlib.pyplot as plt
+
+plt.hist(y_train, bins=30, density=True)
+plt.ylabel("Density")
+plt.xlabel("$/hour")
+_ = plt.title("Target distribution \nin the training set")
+
+# %%
+from sklearn.metrics import mean_absolute_percentage_error
+
+print(
+    f"MAPE on the training set: "
+    f"{mean_absolute_percentage_error(y_train, model.predict(X_train)) * 100:.1f}%"
+)
+print(
+    f"MAPE on the testing set: "
+    f"{mean_absolute_percentage_error(y_test, model.predict(X_test)) * 100:.1f}%"
 )
 
 # %% [markdown]
@@ -103,7 +124,6 @@ pd.Series(shap_values[0].values, index=feature_names)
 # Taking into account the base value, then the model prediction corresponds to
 # the following sum:
 
-# %%
 shap_values[0].values.sum() + shap_values.base_values[0]
 
 # %% [markdown]
@@ -132,9 +152,6 @@ shap.plots.beeswarm(shap_values)
 # ## Global explanation by averaging local explanations
 
 # %%
-shap.plots.bar(shap_values)
-
-# %%
 import matplotlib.pyplot as plt
 from sklearn.inspection import permutation_importance
 
@@ -149,39 +166,20 @@ plt.axvline(0, color="k", linestyle="--")
 plt.xlabel("Decrease in R2 score")
 _ = plt.title("Permutation importances")
 
-# %% [markdown]
-#
-# We can make use of bootstrap resampling of the test set in order to repeat
-# the experiment with a variation of the test dataset.
+# %%
+shap.plots.bar(shap_values)
 
 # %%
 import numpy as np
 
-rng = np.random.default_rng(42)
-n_bootstrap = 25
-
-all_shap_values = []
-for _ in range(n_bootstrap):
-    bootstrap_idx = rng.choice(
-        np.arange(X_test.shape[0]), size=X_test.shape[0], replace=True
-    )
-    X_test_bootstrap = X_test.iloc[bootstrap_idx]
-    X_test_preprocessed = pd.DataFrame(
-        preprocessor.transform(X_test_bootstrap), columns=feature_names
-    )
-    all_shap_values.append(explainer(X_test_preprocessed))
-
-# %%
-shap_values = pd.DataFrame(
-    [np.abs(shap_values.values).mean(axis=0) for shap_values in all_shap_values],
-    columns=feature_names,
+abs_shap_values = pd.DataFrame(
+    np.abs(shap_values.values),
+    columns=X_train_preprocessed.columns,
 )
-sorted_idx = shap_values.mean().sort_values().index
-
-# %%
-shap_values[sorted_idx].plot.box(vert=False, whis=10, figsize=(8, 6))
-plt.xlabel("mean(|SHAP values|)")
-_ = plt.title("SHAP values")
+abs_shap_values[abs_shap_values.mean().sort_values().index].plot.box(
+    vert=False, whis=100, figsize=(8, 6)
+)
+_ = plt.xlabel("|SHAP value|")
 
 # %% [markdown]
 #
@@ -189,10 +187,15 @@ _ = plt.title("SHAP values")
 #
 # Pitfalls can come from:
 #
-# - some issues with the library
+# - some issues with the usage of the library
 # - some limitations due to theoretical assumptions
 
 # %%
+explainer = shap.Explainer(
+    model[-1],
+    masker=X_train_preprocessed,
+)
+shap_values = explainer(X_test_preprocessed)
 explainer
 
 # %%
@@ -200,49 +203,40 @@ explainer.feature_perturbation
 
 # %%
 explainer = shap.Explainer(model[-1])
-explainer(X_test_preprocessed)
+_ = explainer(X_test_preprocessed)
 
 # %%
 explainer.feature_perturbation
 
 # %%
 explainer = shap.Explainer(model[-1], feature_perturbation="interventional")
-explainer(X_test_preprocessed)
+_ = explainer(X_test_preprocessed)
 
 # %%
 explainer.feature_perturbation
 
+# %% [markdown]
+#
+# ![book_model](../images/feature_perturbation.png)
+# ![book_model](../images/causal_problem.png)
+
 # %%
-X = np.concatenate([
-    [[0, 0]] * 400,
-    [[0, 1]] * 100,
-    [[1, 0]] * 100,
-    [[1, 1]] * 400
-], axis=0)
+X = np.concatenate(
+    [[[0, 0]] * 400, [[0, 1]] * 100, [[1, 0]] * 100, [[1, 1]] * 400], axis=0
+)
 X
 
-# %%
-y = np.array(
-    [0] * 400 + [50] * 100 + [50] * 100 + [100] * 400
-)
+y = np.array([0] * 400 + [50] * 100 + [50] * 100 + [100] * 400)
 
 # %%
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, plot_tree
 
 tree_1 = DecisionTreeRegressor(random_state=0).fit(X, y)
-
-# %%
-from sklearn.tree import plot_tree
-
 plt.figure(figsize=(10, 6))
 _ = plot_tree(tree_1)
 
 # %%
 tree_2 = DecisionTreeRegressor(random_state=4).fit(X, y)
-
-# %%
-from sklearn.tree import plot_tree
-
 plt.figure(figsize=(10, 6))
 _ = plot_tree(tree_2)
 
@@ -250,6 +244,11 @@ _ = plot_tree(tree_2)
 X_test = np.array([[1, 1]])
 explainer = shap.explainers.Exact(tree_1.predict, X)
 explainer(X_test)
+
+# %% [markdown]
+#
+# Let's disable the internal subsampling to compute the expected value on the
+# full training set and therefore the true Shapeley values.
 
 # %%
 explainer = shap.explainers.Exact(
@@ -275,9 +274,30 @@ explainer(X_test)
 explainer
 
 # %%
+explainer.feature_perturbation
+
+# %%
 explainer = shap.Explainer(tree_1, shap.maskers.Independent(X, max_samples=X.shape[0]))
 explainer(X_test)
 
 # %%
 explainer = shap.Explainer(tree_2, shap.maskers.Independent(X, max_samples=X.shape[0]))
 explainer(X_test)
+
+# %%
+explainer
+
+# %%
+explainer.feature_perturbation
+
+# %% [markdown]
+#
+# ### References
+#
+# [1] Kumar, I. Elizabeth, et al. "Problems with Shapley-value-based
+# explanations as feature importance measures." International Conference on
+# Machine Learning. PMLR, 2020.
+#
+# [2] Janzing, Dominik, Lenon Minorics, and Patrick Blöbaum. "Feature relevance
+# quantification in explainable AI: A causal problem." International Conference
+# on artificial intelligence and statistics. PMLR, 2020.
